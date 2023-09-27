@@ -4,7 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
-
     // 키 입력을 관리하는 클래스 KeyHandler
 
     public boolean upPressed, downPressed, leftPressed, rightPressed;

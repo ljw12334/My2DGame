@@ -1,17 +1,18 @@
 package main;
+import entity.Player;
+
 import java.awt.*;
 
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
-
     // 게임 화면 그 자체인 GamePanel클래스
 
     // 화면 설정
     final int originalTileSize = 16; // 스프라이트 하나의 크기가 16 * 16픽셀임
     final int scale = 3;
 
-    final int tileSize = originalTileSize * scale; // 1픽셀당 scale값만큼 정수배율로 키움
+    public final int tileSize = originalTileSize * scale; // 1픽셀당 scale값만큼 정수배율로 키움
     final int maxScreenCol = 16;
     final int maxScreenRow = 12;
     final int screenWidth = tileSize * maxScreenCol; // 가로 768픽셀
@@ -21,12 +22,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
-
-    // 플레이어의 기본 좌표 지정
-    int playerX = 100;
-    int playerY = 100;
-    int playerSpeed = 4;
-
+    Player player = new Player(this, keyH);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -37,15 +33,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startGameThread() {
-
         gameThread = new Thread(this);
         gameThread.start();
     }
 
 /*
     @Override
-    public void run() { // sleep 방식의 interval, 실행 후 interval 만큼 대기시키는 방식
-
+    public void run() {
         double drawInterval = 1000000000 / FPS; // 나노초 단위 ( 1초 == 10억 나노초 )
         double nextDrawTime = System.nanoTime() + drawInterval;
 
@@ -76,10 +70,9 @@ public class GamePanel extends JPanel implements Runnable {
 
         }
     }
-*/
+*/ // sleep 방식의 interval, 실행 후 interval 만큼 대기시키는 방식, deltaTime방식에 비해 정확성이 떨어지는 편임
 @Override
 public void run() { // deltaTime 방식의 interval, unity의 Time.deltaTime() 과 비슷함
-
     double drawInterval = 1000000000 / FPS; // 나노초 단위 ( 1초 == 10억 나노초 )
     double delta = 0;
     long lastTime = System.nanoTime();
@@ -113,27 +106,17 @@ public void run() { // deltaTime 방식의 interval, unity의 Time.deltaTime() �
     }
 }
     public void update() {
-        if (keyH.upPressed == true) {
-            playerY -= playerSpeed;
-        } else if (keyH.downPressed == true) {
-            playerY += playerSpeed;
-        } else if (keyH.leftPressed == true) {
-            playerX -= playerSpeed;
-        } else if (keyH.rightPressed == true) {
-            playerX += playerSpeed;
-        }
+        player.update();
     }
     public void paintComponent(Graphics g) {
-
         super.paintComponent(g);
 
         // Graphics2D클래스는 Graphics클래스를 상속함
         // 형태, 좌표변환, 색상변환, 텍스트 레이아웃을 정교하게 제어할 수 있음
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.setColor(Color.white);
-        g2.fillRect(playerX, playerY, tileSize, tileSize);
-        g2.dispose(); // 없어도 작동은 하지만, 메모리 관리를 위해 필요함
+        player.draw(g2);
 
+        g2.dispose(); // 없어도 작동은 하지만, 메모리 관리를 위해 필요함
     }
 }
