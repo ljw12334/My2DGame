@@ -24,6 +24,11 @@ public class Player extends Entity {
         screenX = (gp.screenWidth / 2) - (gp.tileSize / 2);
         screenY = (gp.screenHeight / 2) - (gp.tileSize / 2);
 
+        // 충돌 영역 설정
+        // collision의 크기를 8 * 8 픽셀로 정했으므로, 8 * 3 = 24가 width및 height에 들어가는 것이 맞지만,
+        // 딱 맞출 경우 tile의 영역에 걸려 해당 방향에서 1픽셀만큼 밀리기 때문에 1작은 값을 주었음
+        solidArea = new Rectangle(12, 24, 23, 23);
+
         setDefaultValues();
         getPlayerImage();
     }
@@ -55,16 +60,34 @@ public class Player extends Entity {
         if (keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true) {
             if (keyH.upPressed == true) {
                 direction = "up";
-                worldY -= speed;
             } else if (keyH.downPressed == true) {
                 direction = "down";
-                worldY += speed;
             } else if (keyH.leftPressed == true) {
                 direction = "left";
-                worldX -= speed;
             } else if (keyH.rightPressed == true) {
                 direction = "right";
-                worldX += speed;
+            }
+
+            // 타일 충돌 체크
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+
+            // collision 값이 false라면, 플레이어가 움직일 수 있음
+            if (collisionOn == false) {
+                switch (direction) {
+                    case "up" :
+                        worldY -= speed;
+                        break;
+                    case "down" :
+                        worldY += speed;
+                        break;
+                    case "left" :
+                        worldX -= speed;
+                        break;
+                    case "right" :
+                        worldX += speed;
+                        break;
+                }
             }
 
             spriteCounter++;
@@ -119,5 +142,8 @@ public class Player extends Entity {
                 break;
         }
         g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+
+//        g2.setColor(Color.white);
+//        g2.fillRect(solidArea.x + screenX, solidArea.y + screenY, solidArea.width, solidArea.height);
     }
 }
